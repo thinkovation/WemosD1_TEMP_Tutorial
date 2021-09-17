@@ -14,15 +14,19 @@ OneWire oneWire(ONE_WIRE_BUS);
 // Pass our oneWire reference to Dallas Temperature.
 DallasTemperature sensors(&oneWire);
 
-// arrays to hold device addresses
-DeviceAddress insideThermometer, outsideThermometer;
+// arrays to hold device addresses - Use this if you do not know  the addresses of the devices
+//DeviceAddress insideThermometer, outsideThermometer;
 
-// Assign address manually. The addresses below will need to be changed
+// Once you know the addresses of the devices you can hard-code the address.
+// 
+// You can assign address manually. The addresses below will need to be changed
 // to valid device addresses on your bus. Device address can be retrieved
 // by using either oneWire.search(deviceAddress) or individually via
 // sensors.getAddress(deviceAddress, index)
-// DeviceAddress insideThermometer = { 0x28, 0x1D, 0x39, 0x31, 0x2, 0x0, 0x0, 0xF0 };
-// DeviceAddress outsideThermometer   = { 0x28, 0x3F, 0x1C, 0x31, 0x2, 0x0, 0x0, 0x2 };
+// 28-4A-8A-76-E0-01-3C-6D
+// 28-98-D4-76-E0-FF-3C-B5
+DeviceAddress insideThermometer = { 0x28, 0x4A, 0x8A, 0x76, 0xE0, 0x01, 0x3C, 0x6D };
+DeviceAddress outsideThermometer   = { 0x28, 0x98, 0xD4, 0x76, 0xE0, 0xFF, 0x3C, 0xB5 };
 void printAddress2(DeviceAddress deviceAddress)
 {
   for (uint8_t i = 0; i < 8; i++)
@@ -56,24 +60,13 @@ void setup(void)
   // use those addresses and manually assign them (see above) once you know
   // the devices on your bus (and assuming they don't change).
   //
-  // method 1: by index
-  if (!sensors.getAddress(insideThermometer, 0)) Serial.println("Unable to find address for Device 0");
-  if (!sensors.getAddress(outsideThermometer, 1)) Serial.println("Unable to find address for Device 1");
+  // 
+ 
+ /*
+ // if (!sensors.getAddress(insideThermometer, 0)) Serial.println("Unable to find address for Device 0");
+ // if (!sensors.getAddress(outsideThermometer, 1)) Serial.println("Unable to find address for Device 1");
 
-  // method 2: search()
-  // search() looks for the next device. Returns 1 if a new address has been
-  // returned. A zero might mean that the bus is shorted, there are no devices,
-  // or you have already retrieved all of them. It might be a good idea to
-  // check the CRC to make sure you didn't get garbage. The order is
-  // deterministic. You will always get the same devices in the same order
-  //
-  // Must be called before search()
-  //oneWire.reset_search();
-  // assigns the first address found to insideThermometer
-  //if (!oneWire.search(insideThermometer)) Serial.println("Unable to find address for insideThermometer");
-  // assigns the seconds address found to outsideThermometer
-  //if (!oneWire.search(outsideThermometer)) Serial.println("Unable to find address for outsideThermometer");
-
+  
   // show the addresses we found on the bus
   Serial.print("Device 0 Address: ");
   printAddress2(insideThermometer);
@@ -82,7 +75,7 @@ void setup(void)
   Serial.print("Device 1 Address: ");
   printAddress2(outsideThermometer);
   Serial.println();
-
+*/
   // set the resolution to 9 bit per device
   sensors.setResolution(insideThermometer, TEMPERATURE_PRECISION);
   sensors.setResolution(outsideThermometer, TEMPERATURE_PRECISION);
@@ -126,8 +119,8 @@ void printResolution(DeviceAddress deviceAddress)
 // main function to print information about a device
 void printData(DeviceAddress deviceAddress)
 {
-  Serial.print("Device Address: ");
-  printAddress2(deviceAddress);
+  //Serial.print("Device Address: ");
+  //printAddress2(deviceAddress);
   Serial.print(" ");
   printTemperature(deviceAddress);
   Serial.println();
@@ -145,6 +138,17 @@ void loop(void)
   Serial.println("DONE");
 
   // print the device information
-  printData(insideThermometer);
-  printData(outsideThermometer);
+  Serial.print("InSide ");
+
+  printTemperature(insideThermometer);
+  Serial.println();
+  Serial.print("OutsideSide ");
+
+  printTemperature(outsideThermometer);
+  Serial.println();
+
+    Serial1.println("I'm awake, but I'm going into deep sleep mode for 10 seconds");
+ // ESP.deepSleep(10e6);
+  
+  
 }
