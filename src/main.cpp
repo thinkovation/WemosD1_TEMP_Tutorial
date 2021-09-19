@@ -4,29 +4,24 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
-// Data wire is plugged into port 2 on the Arduino
+// In this example the one_wire_bus is connected to GPIO 2 - You can change this value if you want
+// to use another pin.
 #define ONE_WIRE_BUS 2
+
+//set resolution of all devices to 9, 10, 11, or 12 bits
+//setting the resolution to 9 basically gives .5 degrees of resolution which is probably dandy
 #define TEMPERATURE_PRECISION 9
 
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
 OneWire oneWire(ONE_WIRE_BUS);
 
-// Pass our oneWire reference to Dallas Temperature.
+// Declate a DallasTemperature object, passing it the address of the OneWire object
 DallasTemperature sensors(&oneWire);
 
-// arrays to hold device addresses - Use this if you do not know  the addresses of the devices
-//DeviceAddress insideThermometer, outsideThermometer;
+// arrays to hold device addresses
+DeviceAddress insideThermometer, outsideThermometer;
 
-// Once you know the addresses of the devices you can hard-code the address.
-// 
-// You can assign address manually. The addresses below will need to be changed
-// to valid device addresses on your bus. Device address can be retrieved
-// by using either oneWire.search(deviceAddress) or individually via
-// sensors.getAddress(deviceAddress, index)
-// 28-4A-8A-76-E0-01-3C-6D
-// 28-98-D4-76-E0-FF-3C-B5
-DeviceAddress insideThermometer = { 0x28, 0x4A, 0x8A, 0x76, 0xE0, 0x01, 0x3C, 0x6D };
-DeviceAddress outsideThermometer   = { 0x28, 0x98, 0xD4, 0x76, 0xE0, 0xFF, 0x3C, 0xB5 };
+
 void printAddress2(DeviceAddress deviceAddress)
 {
   for (uint8_t i = 0; i < 8; i++)
@@ -39,9 +34,9 @@ void setup(void)
 {
   // start serial port
   Serial.begin(9600);
-  Serial.println("Dallas Temperature IC Control Library Demo");
+  Serial.println("Startup");
 
-  // Start up the library
+  // Start sensors object
   sensors.begin();
 
   // locate devices on the bus
@@ -50,43 +45,32 @@ void setup(void)
   Serial.print(sensors.getDeviceCount(), DEC);
   Serial.println(" devices.");
 
-  // report parasite power requirements
-  Serial.print("Parasite power is: ");
-  if (sensors.isParasitePowerMode()) Serial.println("ON");
-  else Serial.println("OFF");
+  
 
-  // Search for devices on the bus and assign based on an index. Ideally,
-  // you would do this to initially discover addresses on the bus and then
-  // use those addresses and manually assign them (see above) once you know
-  // the devices on your bus (and assuming they don't change).
-  //
-  // 
- 
- /*
- // if (!sensors.getAddress(insideThermometer, 0)) Serial.println("Unable to find address for Device 0");
- // if (!sensors.getAddress(outsideThermometer, 1)) Serial.println("Unable to find address for Device 1");
+  // This code assigns the addresses of the two temperature sensors in the order they are discovered
+  // Each sensor has a unique ID - and the getAddress() function scans  through the possible ID's till
+  // it finds one - so if you ask for the first device, it will always return whichever sensor has the 
+  // lower ID.
+ if (!sensors.getAddress(insideThermometer, 0)) Serial.println("Unable to find address for Device 0");
+ if (!sensors.getAddress(outsideThermometer, 1)) Serial.println("Unable to find address for Device 1");
 
   
-  // show the addresses we found on the bus
-  Serial.print("Device 0 Address: ");
+  // report the addresses we found
+  Serial.print("Inside Thermometer Address: ");
   printAddress2(insideThermometer);
   Serial.println();
 
-  Serial.print("Device 1 Address: ");
+  Serial.print("Outside Thermometer Address: ");
   printAddress2(outsideThermometer);
   Serial.println();
-*/
-  // set the resolution to 9 bit per device
+
+  // set the resolution of the device to the TEMPERATURE_PRECISION value we defined above
   sensors.setResolution(insideThermometer, TEMPERATURE_PRECISION);
   sensors.setResolution(outsideThermometer, TEMPERATURE_PRECISION);
 
-  Serial.print("Device 0 Resolution: ");
-  Serial.print(sensors.getResolution(insideThermometer), DEC);
+  
   Serial.println();
 
-  Serial.print("Device 1 Resolution: ");
-  Serial.print(sensors.getResolution(outsideThermometer), DEC);
-  Serial.println();
 }
 
 
@@ -147,8 +131,9 @@ void loop(void)
   printTemperature(outsideThermometer);
   Serial.println();
 
-    Serial1.println("I'm awake, but I'm going into deep sleep mode for 10 seconds");
+  //  Serial1.println("I'm awake, but I'm going into deep sleep mode for 10 seconds");
  // ESP.deepSleep(10e6);
+ delay(1000);
   
   
 }
